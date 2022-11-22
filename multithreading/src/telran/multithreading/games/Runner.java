@@ -1,8 +1,11 @@
 package telran.multithreading.games;
 
+import java.time.Instant;
+
 public class Runner extends Thread {
 private Race race;
 private int runnerId;
+private Instant finish;
 public Runner(Race race, int runnerId) {
 	this.race = race;
 	this.runnerId = runnerId;
@@ -20,6 +23,12 @@ public void run() {
 		}
 		System.out.println(runnerId);
 	}
-	race.setWinner(runnerId);
+	synchronized(race) {
+		finish = Instant.now();
+		race.getResults().add(this);
+	}
+}
+public Instant getFinish() {
+	return finish;
 }
 }

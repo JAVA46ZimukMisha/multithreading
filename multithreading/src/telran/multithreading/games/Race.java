@@ -1,14 +1,18 @@
 package telran.multithreading.games;
 
+import java.util.ArrayList;
+
 public class Race {
 	private int distance;
 	private int minSleep;
 	private int maxSleep;
 	private int winner = -1;
-	public Race(int distance, int minSleep, int maxSleep) {
+	private ArrayList<Runner> results;
+	public Race(int distance, int minSleep, int maxSleep, ArrayList<Runner> results) {
 		this.distance = distance;
 		this.minSleep = minSleep;
 		this.maxSleep = maxSleep;
+		this.results = results;
 	}
 	public int getWinner() {
 		return winner;
@@ -26,6 +30,9 @@ public class Race {
 	}
 	public int getMaxSleep() {
 		return maxSleep;
+	}
+	public ArrayList<Runner> getResults() {
+		return results;
 	}
 	
 }

@@ -1,5 +1,8 @@
 package telran.multithreading.games;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.stream.IntStream;
 
 import telran.view.*;
@@ -29,16 +32,23 @@ public class RaceAppl {
 	static void startGame(InputOutput io) {
 		int nThreads = io.readInt("Enter number of the runners","Wrong number of the runners", 2, MAX_THREADS);
 		int distance = io.readInt("Enter distance", "Wrong Distance",MIN_DISTANCE, MAX_DISTANCE);
-		Race race = new Race(distance, MIN_SLEEP, MAX_SLEEP);
+		Instant start = Instant.now();
+		ArrayList<Runner> results = new ArrayList<Runner>(nThreads);
+		Race race = new Race(distance, MIN_SLEEP, MAX_SLEEP, results);
 		Runner[] runners = new Runner[nThreads];
 		startRunners(runners, race);
 		joinRunners(runners);
-		displayWinner(race);
+		displayTable(race, start);
 	}
 
-	private static void displayWinner(Race race) {
-		System.out.println("Congratulations to runner " + race.getWinner());
-		
+	private static void displayTable(Race race, Instant start) {
+		System.out.println("place\trunner\ttime in millis");
+		IntStream.range(0, race.getResults().size()).forEach(i -> {
+			Runner runner = race.getResults().get(i);
+		System.out.println(i+1 + "\t"
+			+ runner.getName()+ "\t"
+				+ ChronoUnit.MILLIS.between(start, runner.getFinish()));
+		});
 	}
 
 	private static void joinRunners(Runner[] runners) {
