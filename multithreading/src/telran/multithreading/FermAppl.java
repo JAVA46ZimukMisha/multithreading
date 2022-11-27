@@ -18,7 +18,7 @@ public class FermAppl {
 		System.out.printf("Report: elevator1 contains %d tons; elevator2 contains %d tons"
 				+ "\nrunning time is %d\n", Truck.getElevator1(),
 				Truck.getElevator2(), ChronoUnit.MILLIS.between(start, Instant.now()));
-		System.out.printf(" value of the waiting iterations counter = %d", Truck.getWaitingCounter());
+		System.out.printf(" value of the waiting iterations counter = " + Truck.getWaitingCounter());
 
 	}
 
