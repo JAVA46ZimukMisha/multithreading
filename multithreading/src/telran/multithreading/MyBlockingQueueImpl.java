@@ -146,13 +146,9 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 			throw new IllegalStateException();
 		}
 		try {
+			
 			return queue.addAll(c) ;
 		}finally {
-			if(cSize<remCap) {
-				while(0<cSize--) {
-				consumersWaitingCondition.signal();
-				}
-			}
 			lock.unlock();
 		}
 	}
@@ -250,16 +246,13 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 		}
 		lock.lock();
 		try {
-			Instant start = Instant.now();
-			long timeoutNanos = unit.toNanos(timeout);
-			while(ChronoUnit.NANOS.between(start, Instant.now())<timeoutNanos) {
-				if(queue.size()<capacity) {
-					queue.addLast(e);
-					consumersWaitingCondition.signal();
-					return true;
-				}
-			}
+				producersWaitingCondition.await(timeout, unit);
+			if(queue.size()>=capacity) {
 				return false;
+			}
+				queue.addLast(e);
+				consumersWaitingCondition.signal();
+				return true;
 		} finally {
 			lock.unlock();
 		}
@@ -283,14 +276,12 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 	public E poll(long timeout, TimeUnit unit) throws InterruptedException {
 		lock.lock();
 		try {
-			Instant start = Instant.now();
-			long timeoutNanos = unit.toNanos(timeout);
-			while(ChronoUnit.NANOS.between(start, Instant.now())<timeoutNanos) {
+				consumersWaitingCondition.await(timeout, unit);
 				if(!queue.isEmpty()) {
 					return queue.removeFirst();
-				}
-			}
+				}else {
 				return null;
+				}
 		} finally {
 			producersWaitingCondition.signal();
 			lock.unlock();
