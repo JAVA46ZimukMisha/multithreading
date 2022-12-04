@@ -140,12 +140,19 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 	@Override
 	public boolean addAll(Collection<? extends E> c) {
 		lock.lock();
-		if(c.size() > this.remainingCapacity()) {
+		int cSize = c.size();
+		int remCap = this.remainingCapacity();
+		if(cSize > remCap) {
 			throw new IllegalStateException();
 		}
 		try {
 			return queue.addAll(c) ;
 		}finally {
+			if(cSize<remCap) {
+				while(0<cSize--) {
+				consumersWaitingCondition.signal();
+				}
+			}
 			lock.unlock();
 		}
 	}
@@ -157,6 +164,7 @@ public class MyBlockingQueueImpl<E> implements BlockingQueue<E> {
 			return queue.removeAll(c) ;
 		}
 		finally {
+			producersWaitingCondition.signal();
 			lock.unlock();
 		}
 	}
